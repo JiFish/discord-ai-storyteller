@@ -2,6 +2,8 @@
 
 **(aka Storyteller Bot)**
 
+_By Joseph Fowler aka JiFish._
+
 This Discord bot designed to act as a Game Master for a simplified ttrpg-like experience. Think Dungeons & Dragons, but improvised.
 
 ## Quick Setup Guide
@@ -156,7 +158,7 @@ Admins can make narrative changes or issue commands by privately messaging the b
 
 - `files.game`: Default: `game_context.json`. The file where the bot's game state is saved.
 - `files.backup_dir`: Default: `backups`. Directory where game context backups are stored.
-- `files.instructions`: Default: `instructions.md`. File containing instructions send using the `!instructions` admin command.
+- `files.instructions`: Default: `instructions.md`. File containing instructions sent using the `!instructions` admin command.
 
 ## Experimental Features
 - `experimental.image_generation`: Default: `false`. To enable, set to a dict of params to pass to openAI's [create image API](https://platform.openai.com/docs/api-reference/images/create). The scene description will be appended to `experimental.image_generation.prompt`. The extra value `experimental.image_generation.prompt_length` sets the maximum length of the combined prompt. When enabled, you can use the `!picture` admin command.
