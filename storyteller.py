@@ -1,4 +1,5 @@
 import asyncio
+import signal
 from logger import logger
 from datetime import datetime, timedelta
 from config import config
@@ -130,5 +131,13 @@ async def handle_player_action(user_id, user_message, channel):
         else:
             logger.fatal("Summarization due to exceeding max_log_tokens failed. This is fatal, exiting.")
             client.close()
+
+def handle_shutdown():
+    logger.info("Shutdown signal received. Closing Discord client.")
+    client.loop.create_task(client.close())
+
+# Register signal handlers for graceful shutdown
+signal.signal(signal.SIGINT, lambda s, f: handle_shutdown())
+signal.signal(signal.SIGTERM, lambda s, f: handle_shutdown())
 
 client.run(config['discord']['bot_token'])
