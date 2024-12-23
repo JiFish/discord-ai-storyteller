@@ -75,7 +75,7 @@ async def handle_admin_command(user_message, channel):
 
 async def handle_public_message(user_id, message, channel):
     user_message = message.content.strip()
-    lower_message = user_message.lower().strip("_*")
+    lower_message = user_message.lower().lstrip("_*")
 
     # Commands that can be used without a character
     if lower_message.startswith("!newcharacter"):
