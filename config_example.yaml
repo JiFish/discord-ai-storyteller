@@ -18,6 +18,7 @@ openai:
 files:
   game: "game_context.json"
   backup_dir: "backups"
+  instructions: "instructions.md"
 
 game:
   max_previous_users: 1

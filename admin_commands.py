@@ -17,7 +17,7 @@ async def picture(channel, params):
     await public_channel.send(embed=discord.Embed().set_image(url=image_url))
 
 async def instructions(channel, params):
-    with open("instructions.md", "r") as f:
+    with open(config['files']['instructions'], "r") as f:
         instructions = f.read()
     await discord_safe_send(instructions, public_channel)
 
