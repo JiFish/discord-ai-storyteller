@@ -2,7 +2,7 @@
 
 **(aka Storyteller Bot)**
 
-This Discord bot designed to act as a Game Master for a simplified ttrpg-like experience. Think Dungeons & Dragons.
+This Discord bot designed to act as a Game Master for a simplified ttrpg-like experience. Think Dungeons & Dragons, but improvised.
 
 ## Quick Setup Guide
 
@@ -21,9 +21,9 @@ This Discord bot designed to act as a Game Master for a simplified ttrpg-like ex
 3. **Set Configuration:** Make a copy of `config_example.yaml` with the name `config.yaml`, and fill in your settings:
 
    - `discord.bot_token`: Your Discord bot token.
-   - `openai.api_key`: Your OpenAI API key.
    - `discord.channel_id`: The ID of the Discord channel where the bot will operate. The bot needs a dedicated channel for the story.
    - `discord.admin_ids`: The IDs of the Discord users with administrative privileges for bot commands.
+   - `openai.api_key`: Your OpenAI API key.
 
 4. **Run the Script:** Execute the script to start the bot.
 
@@ -78,7 +78,7 @@ Admins can make narrative changes or issue commands by privately messaging the b
 
 - `!instructions`
 
-  Send the contents of `instructions.md` to the public channel. You probably want to customise this file first. See the `files.instructions` configuration setting.
+  Sends game instructions to the public channel. You might want to customise them first. See the `files.instructions` configuration setting.
 
 - `!newgame`
 
@@ -86,15 +86,15 @@ Admins can make narrative changes or issue commands by privately messaging the b
 
 - `!nudge (prompt text)`
 
-  Nudge the bot with a specific prompt. Works like `!prompt`, but rather than invoking an immediate response, the prompt will be send along with the next message that does. Perfect for minor narrative adjustments.
+  Nudge the bot with a specific prompt. Works like `!prompt` below, but won't invoke an immediate response. Perfect for minor narrative adjustments.
 
 - `!picture` **(Experimental!)**
 
-  Generate an image from the bot's last scene description and post it to the public channel. To enable this feature, ensure the proper config settings have been set. The image generator has no understanding of the story's continutity, so character, object and location appearances will change between images.
+  Generate an image from the bot's last description and post it to the public channel. To enable this feature, ensure the proper config settings have been set. The image generator has no understanding of the story's continutity, so characters, objects, and locations will change appearance between images.
 
 - `!ping`
 
-  Check if the bot is responsive.
+  Check if the bot is responsive. Replies "Pong!" and adds a log entry.
 
 - `!prompt (prompt text)`
 
@@ -114,7 +114,7 @@ Admins can make narrative changes or issue commands by privately messaging the b
 
 - `!testdice`
 
-  Test dice rolls strings by replying with all possible outcomes as a DM.
+  Test dice rolls strings by replying with all possible outcomes.
 
 ## Config Variables
 
