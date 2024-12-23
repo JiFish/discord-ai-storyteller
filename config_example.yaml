@@ -24,6 +24,11 @@ game:
   max_log_tokens: 75000
   dice: "2d6"
   dice_strings: ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅']
+  max_lengths:
+    name: 30
+    race: 20
+    class: 30
+    pronouns: 15
 
 prompts:
   base: |

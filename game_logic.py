@@ -24,10 +24,26 @@ def build_system_prompt():
     return config['prompts']['base'] + "\nThe players are:\n" + "\n".join(character_descriptions)
 
 def create_character(user_id, name, race, pronouns, char_class):
+    # Define limits from config
+    max_name_length = config['game']['max_lengths']['name']
+    max_race_length = config['game']['max_lengths']['race']
+    max_class_length = config['game']['max_lengths']['class']
+    max_pronouns_length = config['game']['max_lengths']['pronouns']
+
+    # Check limits
+    if len(name) > max_name_length:
+        return f"⚠️ Character name is too long. Maximum length is {max_name_length} characters."
+    if len(race) > max_race_length:
+        return f"⚠️ Race is too long. Maximum length is {max_race_length} characters."
+    if len(char_class) > max_class_length:
+        return f"⚠️ Class is too long. Maximum length is {max_class_length} characters."
+    if len(pronouns) > max_pronouns_length:
+        return f"⚠️ Pronouns are too long. Maximum length is {max_pronouns_length} characters."
+
     characters = game_context['characters']
 
     if any(char["name"] == name for char in characters.values()):
-        return f"{name} is already a character name!"
+        return f"⚠️ {name} is already a character name!"
 
     if user_id in characters:
         old_char = characters[user_id]
