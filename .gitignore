@@ -1,0 +1,4 @@
+__pycache__
+backups/
+config.yaml
+game_context.json
