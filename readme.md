@@ -137,6 +137,8 @@ Admins can make narrative changes or issue commands by privately messaging the b
 - `openai.summary_model`: Default: `gpt-4o`. The model used for the summarization task.
 - `openai.max_attempts`: Default: `3`. The number of attempts for OpenAI API calls in case of failure.
 - `openai.retry_delay`: Default: `5`. The exponential delay (in seconds) between attempts. So with the default the delay would be 5 seconds, 10, 20, 40...
+- `openai.main_temperature`:  Default: `1.1`. The temperature setting for GPT responses. Higher values make the bot more creative, lower values make it more deterministic.
+- `openai.summary_temperature`:  Default: `0.9`. The temperature setting for GPT summary responses.
 
 ### Gameplay Settings
 

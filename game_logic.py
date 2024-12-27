@@ -84,7 +84,8 @@ async def summarize_adventure():
         summary_text, _ = await get_chatgpt_response(
             config['openai']['summary_model'],
             summarise_log,
-            config['openai']['max_summary_tokens']
+            config['openai']['max_summary_tokens'],
+            config['openai']['summary_temperature']
         )
     except Exception as e:
         logger.error(f"Summarization process failed. Error: {e}")
@@ -134,7 +135,8 @@ async def respond_and_log(message, role = "user"):
         assistant_reply, token_usage = await get_chatgpt_response(
             config['openai']['main_model'],
             game_context["log"],
-            config['openai']['max_tokens']
+            config['openai']['max_tokens'],
+            config['openai']['main_temperature']
         )
         remove_system_entries()
     except Exception:
@@ -146,14 +148,15 @@ async def respond_and_log(message, role = "user"):
     
     return assistant_reply
 
-async def get_chatgpt_response(model, messages, max_tokens):
+async def get_chatgpt_response(model, messages, max_tokens, temperature = 1.0):
     update_status("Storyteller is thinking...")
     for attempt in range(config['openai']['max_attempts']):
         try:
             response = openai_client.chat.completions.create(
                 model=model,
                 messages=messages,
-                max_tokens=max_tokens
+                max_tokens=max_tokens,
+                temperature=temperature
             )
             return response.choices[0].message.content, response.usage.total_tokens
         except Exception as e:
