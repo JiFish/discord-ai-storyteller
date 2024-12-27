@@ -44,13 +44,11 @@ async def on_message(message):
     user_id = message.author.id
 
     if message.guild is None and user_id in config['discord']['admin_ids']:
-        await handle_admin_command(user_message, message.channel)
+        await handle_admin_command(user_message, message)
     elif message.channel.id == config['discord']['channel_id']:
-        await handle_public_message(user_id, message, message.channel)
+        await handle_public_message(user_id, user_message, message)
 
-async def handle_admin_command(user_message, channel):
-    lower_message = user_message.lower()
-
+async def handle_admin_command(user_message, message):
     command_handlers = {
         "!clearprev":    admin_commands.clear_previous_users,
         "!instructions": admin_commands.instructions,
@@ -67,16 +65,33 @@ async def handle_admin_command(user_message, channel):
     }
 
     for command, handler in command_handlers.items():
-        if lower_message.startswith(command):
-            params = user_message[len(command):].strip()
-            await handler(channel, params)
+        if user_message.lower().startswith(command):
+            user_message, _ = user_message_extract(user_message, message)
+            params = user_message[len(command):].lstrip()
+            await handler(message.channel, params)
             return
 
-    await channel.send(f"{user_message}: Command not recognized.")
+    await message.channel.send(f"{user_message}: Command not recognized.")
 
-async def handle_public_message(user_id, message, channel):
-    user_message = message.content.strip()
-    lower_message = user_message.lower().lstrip("_*")
+def user_message_extract(user_message, message):
+    fourth_wall = False
+    for user in message.mentions:
+        if user.id in game.game_context["characters"]:
+            char_name = game.game_context["characters"][user.id]["name"]
+            user_message = user_message.replace(user.mention, char_name)
+        else:
+            fourth_wall = True
+
+    return user_message, fourth_wall
+
+async def handle_public_message(user_id, user_message, message):
+    lower_message = user_message.lstrip("_*").lower()
+
+    # Ignore whispers up front, no need to process them
+    if lower_message.startswith(("!w", "(w)", "(whisper")):
+        return
+
+    user_message, fourth_wall = user_message_extract(user_message, message)
 
     # Commands that can be used without a character
     if lower_message.startswith("!newcharacter"):
@@ -92,6 +107,10 @@ async def handle_public_message(user_id, message, channel):
     # Check if the player has a character
     elif user_id not in game.game_context["characters"]:
         await message.reply("Please create a character first using `!newcharacter name, race, class, pronouns`.")
+
+    # Check if the player is breaking the fourth wall command
+    elif fourth_wall:
+        await message.reply("Mentioned users must have characters in the game. Don't break the fourth wall!")
 
     # Commands that require a character
     elif lower_message.startswith(("!say","(say)", ">")):
@@ -114,7 +133,7 @@ async def handle_public_message(user_id, message, channel):
 
     # If no command was issued, the player is taking an action
     else:
-        await handle_player_action(user_id, user_message, channel)
+        await handle_player_action(user_id, user_message, message.channel)
 
 async def handle_player_action(user_id, user_message, channel):
     async with channel.typing():
