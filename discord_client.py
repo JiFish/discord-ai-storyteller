@@ -6,10 +6,16 @@ intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
 
-public_channel = client.get_channel(int(config['discord']['channel_id']))
+public_channel = None
 
 current_details = None
 current_status = discord.Status.online
+
+def get_public_channel():
+    global public_channel
+    if public_channel is None:
+        public_channel = client.get_channel(config['discord']['channel_id'])
+    return public_channel
 
 async def set_activity_presence(details, is_idle=False):
     global current_details, current_status
