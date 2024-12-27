@@ -181,7 +181,7 @@ def clear_previous_users():
     game_context["previous_users"] = []
     save_game_context(game_context)
 
-# Removes all entries with the role "system" from the game context log, except for the first entry (entry 0).
+# Removes all entries with the role "system" from the game context log, except for the base prompt (entry 0).
 def remove_system_entries():
     game_context["log"] = [entry for i, entry in enumerate(game_context["log"]) if entry["role"] != "system" or i == 0]
     save_game_context(game_context)
