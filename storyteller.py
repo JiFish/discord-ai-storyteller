@@ -96,8 +96,8 @@ async def handle_public_message(user_id, message, channel):
     # Commands that require a character
     elif lower_message.startswith(("!say","(say)", ">")):
         # Remove the command prefix by length so the player can omit the space after the command.
-        details = user_message[{'!': 4, '(': 5, '>': 1}[user_message[0]]:].lstrip()
-        game.player_say(user_id, details)
+        quote = user_message[{'!': 4, '(': 5, '>': 1}[user_message[0]]:].lstrip()
+        game.player_say(user_id, quote)
         await message.add_reaction("💬")
 
     # Check if the player is trying to use some other command
