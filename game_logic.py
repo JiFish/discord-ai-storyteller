@@ -40,6 +40,10 @@ def create_character(user_id, name, race, pronouns, char_class):
     if len(pronouns) > max_pronouns_length:
         return f"⚠️ Pronouns are too long. Maximum length is {max_pronouns_length} characters."
 
+    # Check for empty fields
+    if not all([name, race, pronouns, char_class, appearance]):
+        return "⚠️ All fields must be filled."
+
     characters = game_context['characters']
 
     if any(char["name"] == name for char in characters.values()):
