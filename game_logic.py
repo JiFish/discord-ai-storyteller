@@ -18,17 +18,18 @@ def update_status(new_status):
 
 def build_system_prompt():
     character_descriptions = [
-        f"{char['name']} is a {char['race']} {char['class']} ({char['pronouns']} pronouns)"
+        f"{char['name']} is a {char['race']} {char['class']} ({char['pronouns']} pronouns), {char['appearance']}"
         for char in game_context["characters"].values()
     ]
     return config['prompts']['base'] + "\nThe players are:\n" + "\n".join(character_descriptions)
 
-def create_character(user_id, name, race, pronouns, char_class):
+def create_character(user_id, name, race, pronouns, char_class, appearance):
     # Define limits from config
     max_name_length = config['game']['max_lengths']['name']
     max_race_length = config['game']['max_lengths']['race']
     max_class_length = config['game']['max_lengths']['class']
     max_pronouns_length = config['game']['max_lengths']['pronouns']
+    max_appearance_length = config['game']['max_lengths']['appearance']
 
     # Check limits
     if len(name) > max_name_length:
@@ -39,6 +40,8 @@ def create_character(user_id, name, race, pronouns, char_class):
         return f"⚠️ Class is too long. Maximum length is {max_class_length} characters."
     if len(pronouns) > max_pronouns_length:
         return f"⚠️ Pronouns are too long. Maximum length is {max_pronouns_length} characters."
+    if len(appearance) > max_appearance_length:
+        return f"⚠️ Appearance is too long. Maximum length is {max_appearance_length} characters."
 
     # Check for empty fields
     if not all([name, race, pronouns, char_class, appearance]):
@@ -59,7 +62,8 @@ def create_character(user_id, name, race, pronouns, char_class):
         "name": name,
         "race": race,
         "pronouns": pronouns,
-        "class": char_class
+        "class": char_class,
+        "appearance": appearance
     }
     log_message += f"{name} has joined the party!"
     game_context["log"][0]["content"] = build_system_prompt()
@@ -67,7 +71,7 @@ def create_character(user_id, name, race, pronouns, char_class):
     update_status(f"{name} has joined the party!")
     save_game_context(game_context)
 
-    return f"Character created! You are {name}, a {race} {char_class} ({pronouns})."
+    return f"Character created! You are {name}, a {race} {char_class} ({pronouns}). Appearance: {appearance}."
 
 async def summarize_adventure():
     backup_game_context()

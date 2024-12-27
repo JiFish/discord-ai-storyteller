@@ -30,6 +30,7 @@ game:
     race: 20
     class: 30
     pronouns: 15
+    appearance: 80
 
 prompts:
   base: |

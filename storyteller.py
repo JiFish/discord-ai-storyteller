@@ -82,14 +82,12 @@ async def handle_public_message(user_id, message, channel):
     if lower_message.startswith("!newcharacter"):
         try:
             _, details = user_message.split(maxsplit=1)
-            name, race, char_class, pronouns = [item.strip() for item in details.split(',')]
+            name, race, char_class, pronouns, appearance = [item.strip() for item in details.split(',')]
         except ValueError:
-            await message.reply("Please use the format: `!newcharacter name, race, class, pronouns`.")
+            await message.reply("Please use the format: `!newcharacter name, race, class, pronouns, appearance`.")
         else:
-            response = game.create_character(user_id, name, race, pronouns, char_class)
+            response = game.create_character(user_id, name, race, pronouns, char_class, appearance)
             await message.reply(response)
-    elif lower_message.startswith(("!w", "!whisper", "(w)", "(whisper)")):
-        return
     
     # Check if the player has a character
     elif user_id not in game.game_context["characters"]:

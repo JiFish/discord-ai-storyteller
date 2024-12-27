@@ -51,10 +51,10 @@ Gameplay can be configured, see [Gameplay Settings](#gameplay-settings) below.
 
 ### Commands
 
-- `!newcharacter name, race, class, pronouns`
+- `!newcharacter name, race, class, pronouns, appearance`
 
   - Create a new character for the game.
-  - Example: `!newcharacter Zara, Elf, Wizard, she/her`
+  - Example: `!newcharacter Zara, Elf, Wizard, she/her, tall with long silver hair`
   - Replaces your old character if you had one.
 
 - `!whisper` or `(whisper)` or `!w ` or `(w)`
@@ -149,6 +149,7 @@ Admins can make narrative changes or issue commands by privately messaging the b
   - `race`: Default: `20`. Maximum length for character races.
   - `class`: Default: `30`. Maximum length for character classes.
   - `pronouns`: Default: `15`. Maximum length for character pronouns.
+  - `appearance`: Default: `80`. Maximum length for character appearance.
 - **Prompts:**
   - `prompts.base`: The primary prompt to guide the bot's behavior as a GM.
   - `prompts.summary`: The prompt when summarizing the adventure.
