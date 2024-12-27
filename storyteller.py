@@ -41,11 +41,11 @@ async def on_message(message):
     if not user_message:
         return
 
-    user_id = str(message.author.id)
+    user_id = message.author.id
 
     if message.guild is None and user_id in config['discord']['admin_ids']:
         await handle_admin_command(user_message, message.channel)
-    elif str(message.channel.id) == config['discord']['channel_id']:
+    elif message.channel.id == config['discord']['channel_id']:
         await handle_public_message(user_id, message, message.channel)
 
 async def handle_admin_command(user_message, channel):

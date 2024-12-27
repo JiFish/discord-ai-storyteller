@@ -20,6 +20,6 @@ except ValueError:
     sys.exit(1)
 config['game']['dice'] = {'num_dice': num_dice, 'dice_type': dice_type}
 
-# Ensure discord IDs are strings
-config['discord']['channel_id'] = str(config['discord']['channel_id'])
-config['discord']['admin_ids'] = [str(admin_id) for admin_id in config['discord']['admin_ids']]
+# Ensure discord IDs are ints
+config['discord']['channel_id'] = int(config['discord']['channel_id'])
+config['discord']['admin_ids'] = [int(admin_id) for admin_id in config['discord']['admin_ids']]

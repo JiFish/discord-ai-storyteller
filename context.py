@@ -1,5 +1,5 @@
 import os
-import json
+import yaml
 import shutil
 from datetime import datetime
 from logger import logger
@@ -22,11 +22,8 @@ def get_empty_context():
 def load_game_context():
     if os.path.exists(config['files']['game']):
         with open(config['files']['game'], 'r') as f:
-            context = json.load(f)
-        # Convert timestamps back to datetime objects
-        if "last_status_update" in context:
-            context["last_status_update"] = datetime.fromisoformat(context["last_status_update"])
-        # Fill in missing fields
+            context = yaml.load(f, Loader=yaml.SafeLoader)
+        # Fill in missing fields with defaults
         context = {**get_empty_context(), **context}
         return context
 
@@ -34,10 +31,10 @@ def load_game_context():
 
 def save_game_context(game_context):
     with open(config['files']['game'], 'w') as f:
-        json.dump(game_context, f, default=str)
+        yaml.dump(game_context, f)
 
 def backup_game_context():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    backup_filename = os.path.join(config['files']['backup_dir'], f"{timestamp}.json")
+    backup_filename = os.path.join(config['files']['backup_dir'], f"{timestamp}.yaml")
     shutil.copy(config['files']['game'], backup_filename)
     logger.info(f"Backup created: {backup_filename}")

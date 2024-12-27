@@ -156,7 +156,7 @@ Admins can make narrative changes or issue commands by privately messaging the b
 
 ### Files
 
-- `files.game`: Default: `game_context.json`. The file where the bot's game state is saved.
+- `files.game`: Default: `game_context.yaml`. The file where the bot's game state is saved.
 - `files.backup_dir`: Default: `backups`. Directory where game context backups are stored.
 - `files.instructions`: Default: `instructions.md`. File containing instructions sent using the `!instructions` admin command.
 

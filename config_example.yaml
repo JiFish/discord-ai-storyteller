@@ -1,7 +1,7 @@
 discord:
   bot_token: "YOUR.DISCORD.BOT.TOKEN"
-  channel_id: '01234567890123456789'
-  admin_ids: ['98765432109876543210']
+  channel_id: 01234567890123456789
+  admin_ids: [98765432109876543210, 12345678901234567890]
   message_length: 2000
   activity_name: "storyteller"
   idle_timeout: 60
@@ -16,7 +16,7 @@ openai:
   retry_delay: 5
 
 files:
-  game: "game_context.json"
+  game: "game_context.yaml"
   backup_dir: "backups"
   instructions: "instructions.md"
 
