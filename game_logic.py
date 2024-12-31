@@ -91,11 +91,18 @@ async def summarize_adventure():
         logger.error(f"Summarization process failed. Error: {e}")
         return False
     
-    game_context["log"] = [
+    # Start a new log begining with the summary
+    new_log = [
         {"role": "system", "content": build_system_prompt()},
         {"role": "assistant", "content": summary_text},
-        game_context["log"][-1]
     ]
+    # Add the last assistant message and all messages after it
+    for entry in reversed(game_context["log"]):
+        if entry["role"] == "assistant":
+            new_log.extend(reversed(game_context["log"][game_context["log"].index(entry):]))
+            break
+
+    game_context["log"] = new_log
     game_context["token_usage"] = -1
     
     update_status("The story so far...")
