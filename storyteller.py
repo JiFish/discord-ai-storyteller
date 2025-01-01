@@ -101,7 +101,7 @@ async def handle_public_message(user_id, user_message, message):
         except ValueError:
             await message.reply("Please use the format: `!newcharacter name, race, class, pronouns, appearance`.")
         else:
-            response = game.create_character(user_id, name, race, pronouns, char_class, appearance)
+            response = await game.create_character(user_id, name, race, pronouns, char_class, appearance)
             await message.reply(response)
     
     # Check if the player has a character
@@ -116,7 +116,7 @@ async def handle_public_message(user_id, user_message, message):
     elif lower_message.startswith(("!say","(say)", ">")):
         # Remove the command prefix by length so the player can omit the space after the command.
         quote = user_message[{'!': 4, '(': 5, '>': 1}[user_message[0]]:].lstrip()
-        game.player_say(user_id, quote)
+        await game.player_say(user_id, quote)
         await message.add_reaction("💬")
 
     # Check if the player is trying to use some other command
@@ -133,9 +133,13 @@ async def handle_public_message(user_id, user_message, message):
 
     # If no command was issued, the player is taking an action
     else:
-        await handle_player_action(user_id, user_message, message.channel)
+        if not game.is_game_locked():
+            await handle_player_action(user_id, user_message, message)
+        else:
+            await message.reply("I'm currently busy processing an action. Please try again in a moment.")
 
-async def handle_player_action(user_id, user_message, channel):
+async def handle_player_action(user_id, user_message, message):
+    channel = message.channel
     async with channel.typing():
         chatgpt_response = await game.respond_to_player(user_id, user_message)
     await discord_safe_send(chatgpt_response, channel)

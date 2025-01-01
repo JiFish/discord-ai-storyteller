@@ -30,7 +30,7 @@ async def summarize(channel, params):
         await channel.send("Summarization failed.")
 
 async def new_game(channel, params):
-    game.new_adventure()
+    await game.new_adventure()
     await discord_safe_send("**A new adventure is beginning. Please create new characters!**", get_public_channel())
 
 async def test_dice(channel, params):
@@ -65,9 +65,9 @@ async def nudge(channel, params):
     if not params:
         await channel.send("Please provide prompt after the command.")
     else:
-        game.admin_nudge(params)
+        await game.admin_nudge(params)
         await channel.send("Nudge added.")
 
 async def clear_previous_users(channel, params):
-    game.clear_previous_users()
+    await game.clear_previous_users()
     await channel.send("Previous users cleared.")

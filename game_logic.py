@@ -8,22 +8,36 @@ from openai import OpenAI
 
 openai_client = OpenAI(api_key=config['openai']['api_key'])
 
+game_lock = asyncio.Lock()
+
+def locked():
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
+            async with game_lock:
+                return await func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+def is_game_locked():
+    return game_lock.locked()
+
 def roll_dice():
     return [randint(1, config['game']['dice']['dice_type'])
             for _ in range(config['game']['dice']['num_dice'])]
 
-def update_status(new_status):
+def _update_status(new_status):
     game_context["status"] = new_status
     game_context["last_status_update"] = datetime.now()
 
-def build_system_prompt():
+def _build_system_prompt():
     character_descriptions = [
         f"{char['name']} is a {char['race']} {char['class']} ({char['pronouns']} pronouns), {char['appearance']}"
         for char in game_context["characters"].values()
     ]
     return config['prompts']['base'] + "\nThe players are:\n" + "\n".join(character_descriptions)
 
-def create_character(user_id, name, race, pronouns, char_class, appearance):
+@locked()
+async def create_character(user_id, name, race, pronouns, char_class, appearance):
     # Define limits from config
     max_name_length = config['game']['max_lengths']['name']
     max_race_length = config['game']['max_lengths']['race']
@@ -66,13 +80,14 @@ def create_character(user_id, name, race, pronouns, char_class, appearance):
         "appearance": appearance
     }
     log_message += f"{name} has joined the party!"
-    game_context["log"][0]["content"] = build_system_prompt()
+    game_context["log"][0]["content"] = _build_system_prompt()
     game_context["log"].append({"role": "user", "content": log_message})
-    update_status(f"{name} has joined the party!")
+    _update_status(f"{name} has joined the party!")
     save_game_context(game_context)
 
     return f"Character created! You are {name}, a {race} {char_class} ({pronouns}). Appearance: {appearance}."
 
+@locked()
 async def summarize_adventure():
     backup_game_context()
 
@@ -81,7 +96,7 @@ async def summarize_adventure():
     summarise_log.append({"role": "system", "content": config['prompts']['summary_instruction']})
 
     try:
-        summary_text, _ = await get_chatgpt_response(
+        summary_text, _ = await _get_chatgpt_response(
             config['openai']['summary_model'],
             summarise_log,
             config['openai']['max_summary_tokens'],
@@ -93,7 +108,7 @@ async def summarize_adventure():
     
     # Start a new log begining with the summary
     new_log = [
-        {"role": "system", "content": build_system_prompt()},
+        {"role": "system", "content": _build_system_prompt()},
         {"role": "assistant", "content": summary_text},
     ]
     # Add the last assistant message and all messages after it
@@ -105,16 +120,18 @@ async def summarize_adventure():
     game_context["log"] = new_log
     game_context["token_usage"] = -1
     
-    update_status("The story so far...")
+    _update_status("The story so far...")
     save_game_context(game_context)
     return summary_text
 
+@locked()
 async def respond_to_admin(message):
-    assistant_reply = await respond_and_log(message, role="system")
-    update_status("The story was moved forward...")
+    assistant_reply = await _respond_and_log(message, role="system")
+    _update_status("The story was moved forward...")
     save_game_context(game_context)
     return assistant_reply
 
+@locked()
 async def respond_to_player(user_id, message):
     # Update the previous users list
     if config['game']['max_previous_users'] > 0:
@@ -136,27 +153,28 @@ async def respond_to_player(user_id, message):
     save_game_context(game_context)
     return assistant_reply
 
-async def respond_and_log(message, role = "user"):
+async def _respond_and_log(message, role = "user"):
     game_context["log"].append({"role": role, "content": message})
     try:
-        assistant_reply, token_usage = await get_chatgpt_response(
+        assistant_reply, token_usage = await _get_chatgpt_response(
             config['openai']['main_model'],
             game_context["log"],
             config['openai']['max_tokens'],
             config['openai']['main_temperature']
         )
-        remove_system_entries()
     except Exception:
         game_context["log"].pop()   # Remove the unprocessed message
         return "I'm experiencing technical issues. Please try again later."
     
+    # Removes all entries with the role "system" from the game context log, except for the base prompt (entry 0).
+    game_context["log"] = [entry for i, entry in enumerate(game_context["log"]) if entry["role"] != "system" or i == 0]
     game_context["log"].append({"role": "assistant", "content": assistant_reply})
     game_context["token_usage"] = token_usage
     
     return assistant_reply
 
-async def get_chatgpt_response(model, messages, max_tokens, temperature = 1.0):
-    update_status("Storyteller is thinking...")
+async def _get_chatgpt_response(model, messages, max_tokens, temperature = 1.0):
+    _update_status("Storyteller is thinking...")
     for attempt in range(config['openai']['max_attempts']):
         try:
             response = openai_client.chat.completions.create(
@@ -174,33 +192,38 @@ async def get_chatgpt_response(model, messages, max_tokens, temperature = 1.0):
                 logger.error(f"ChatGPT request failed. Error: {e}. (Attempt #{attempt+1}.)")
                 raise
 
-def player_say(user_id, user_message):
+@locked()
+async def player_say(user_id, user_message):
     character_name = game_context["characters"][user_id]["name"]
     game_context["log"].append({"role": "user", "content": f"{character_name} says: {user_message}"})
-    update_status(f"{character_name} has spoken...")
+    _update_status(f"{character_name} has spoken...")
     save_game_context(game_context)
 
-def admin_nudge(user_message):
+@locked()
+async def admin_nudge(user_message):
     game_context["log"].append({"role": "system", "content": user_message})
     save_game_context(game_context)
 
-def update_context_from_config():
-    game_context["log"][0]["content"] = build_system_prompt()
+@locked()
+async def write_story(user_message):
+    game_context["log"].append({"role": "assistant", "content": user_message})
+    _update_status("The story was moved forward...")
+    save_game_context(game_context)
+
+def _update_context_from_config():
+    game_context["log"][0]["content"] = _build_system_prompt()
     if config['game']['max_previous_users'] < 1:
         game_context["previous_users"] = []
     else:
         game_context["previous_users"] = game_context["previous_users"][config['game']['max_previous_users']:]
 
-def clear_previous_users():
+@locked()
+async def clear_previous_users():
     game_context["previous_users"] = []
     save_game_context(game_context)
 
-# Removes all entries with the role "system" from the game context log, except for the base prompt (entry 0).
-def remove_system_entries():
-    game_context["log"] = [entry for i, entry in enumerate(game_context["log"]) if entry["role"] != "system" or i == 0]
-    save_game_context(game_context)
-
-def new_adventure():
+@locked()
+async def new_adventure():
     backup_game_context()
     game_context = get_empty_context()
     save_game_context(game_context)
@@ -232,4 +255,4 @@ async def generate_image_from_scene():
 
 ## Load the game context
 game_context = load_game_context()
-update_context_from_config()
+_update_context_from_config()
