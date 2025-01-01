@@ -22,6 +22,8 @@ def is_game_locked():
     return game_lock.locked()
 
 def roll_dice():
+    if not config['game']['dice']:
+        return False
     return [randint(1, config['game']['dice']['dice_type'])
             for _ in range(config['game']['dice']['num_dice'])]
 
