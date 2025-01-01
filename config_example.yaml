@@ -27,6 +27,11 @@ game:
   max_log_tokens: 75000
   dice: "2d6"
   dice_strings: ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅']
+  dice_reacts: false
+  # Dice reacrions example:
+  # dice_reacts:
+  #   - ['<:roll1blue:0000>', '<:roll2blue:0000>', '<:roll3blue:0000>', '<:roll4blue:0000>', '<:roll5blue:0000>', '<:roll6blue:0000>']
+  #   - ['<:roll1red: 0000>', '<:roll2red:0000>', '<:roll3red:0000>', '<:roll4red:0000>', '<:roll5red:0000>', '<:roll6red:0000>']
   max_lengths:
     name: 30
     race: 20

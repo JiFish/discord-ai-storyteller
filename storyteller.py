@@ -131,8 +131,15 @@ async def handle_public_message(user_id, user_message, message):
 async def handle_player_action(user_id, user_message, message):
     channel = message.channel
     async with channel.typing():
-        chatgpt_response = await game.respond_to_player(user_id, user_message)
-    await discord_safe_send(chatgpt_response, channel)
+        chatgpt_response, dice_values = await game.respond_to_player(user_id, user_message)
+        if dice_values:
+            if config['game']['dice_reacts']:
+                for i, value in enumerate(dice_values):
+                    await message.add_reaction(config['game']['dice_reacts'][i][value - 1])
+            else:
+                dice_result = " ".join(config['game']['dice_strings'][value - 1] for value in dice_values)
+                chatgpt_response = f"You rolled: {dice_result}\n\n{chatgpt_response}"
+        await discord_safe_send(chatgpt_response, channel)
 
     if game.game_context["token_usage"] > config['game']['max_log_tokens']:
         async with channel.typing():

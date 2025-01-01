@@ -142,16 +142,11 @@ async def respond_to_player(user_id, message):
     character_name = game_context["characters"][user_id]["name"]
     dice_values = roll_dice()
     if dice_values:
-        dice_sum = sum(dice_values)
-        dice_result = " ".join(config['game']['dice_strings'][value - 1] for value in dice_values)
-        assistant_reply = await respond_and_log(f"{character_name}: {message} [{dice_sum}]")
-        assistant_reply = f"You rolled: {dice_result}\n\n{assistant_reply}"
-    else:
-        assistant_reply = await respond_and_log(f"{character_name}: {message}")
-
-    update_status(f"{character_name} made a decision...")
+        message += f" [{sum(dice_values)}]"
+    assistant_reply = await _respond_and_log(f"{character_name}: {message}")
+    _update_status(f"{character_name} made a decision...")
     save_game_context(game_context)
-    return assistant_reply
+    return assistant_reply, dice_values
 
 async def _respond_and_log(message, role = "user"):
     game_context["log"].append({"role": role, "content": message})

@@ -154,6 +154,7 @@ Admins can make narrative changes or issue commands by privately messaging the b
 - `game.max_log_tokens`: Default: `50000`. The maximum number of tokens in the bot's log before triggering a summary.
 - `game.dice`: Default `2d6`. The dice rolled when a player takes an action. `false` to disable rolling dice. If you change this, you should update `prompts.base` and maybe `game.dice_strings`, too.
 - `game.dice_strings`: Default: `['⚀', '⚁', '⚂', '⚃', '⚄', '⚅']`. Strings that get sent representing dice roll results. You can replace these strings with Discord emoji codes for enhanced visuals. See the [Discord documentation on message formatting](https://discord.com/developers/docs/reference#message-formatting) for details.
+- `game.dice_reacts`: Default: `false`. Alternative to above. When enabled, the bot reacts to the player's message with their dice roll result. The setting takes a list of emoji lists, where each sublist represents a single die in the roll, and each emoji corresponds to a face of the die. (So for 2d6, 12 emojis are needed.) See `config_example.yaml` for an example.
 - `game.max_lengths`: Configurable limits for character creation.
   - `name`: Default: `30`. Maximum length for character names.
   - `race`: Default: `20`. Maximum length for character races.
