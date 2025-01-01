@@ -68,6 +68,13 @@ async def nudge(channel, params):
         await game.admin_nudge(params)
         await channel.send("Nudge added.")
 
+async def echo(channel, params):
+    await discord_safe_send(params, get_public_channel())
+
+async def write(channel, params):
+    await game.write_story(params)
+    await discord_safe_send(params, get_public_channel())
+
 async def clear_previous_users(channel, params):
     await game.clear_previous_users()
     await channel.send("Previous users cleared.")
@@ -75,6 +82,7 @@ async def clear_previous_users(channel, params):
 # (command, handler, reject_if_game_locked)
 command_handlers = [
     ("!clearprev",                clear_previous_users, False),
+    ("!echo",                     echo,                 False),
     ("!instructions",             instructions,         False),
     ("!newgame",                  new_game,             False),
     ("!nudge",                    nudge,                False),
@@ -86,4 +94,5 @@ command_handlers = [
     (("!summarise","!summarize"), summarize,            True ),
     ("!testdice",                 test_dice,            False),
     ("!version",                  version,              False),
+    ("!write",                    write,                True ),
 ]

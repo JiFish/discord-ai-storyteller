@@ -78,6 +78,10 @@ Admins can make narrative changes or issue commands by privately messaging the b
 
   Clear the list of previous users who have taken a turn.
 
+- `!echo (some text)`
+
+  Send (some text) to the public channel. Useful for channel announcements, repeating lost messages. Text is not part of the story, for that use `!write`.
+
 - `!instructions`
 
   Sends game instructions to the public channel. You might want to customise them first. See the `files.instructions` configuration setting.
@@ -117,6 +121,10 @@ Admins can make narrative changes or issue commands by privately messaging the b
 - `!testdice`
 
   Test dice rolls strings by replying with all possible outcomes.
+
+- `!write (some text)`
+
+  Effectively take control of the story. (some text) will be sent to the public channel and the bot will consider it part of the story going forward. 
 
 ## Config Variables
 
