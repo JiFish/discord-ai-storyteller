@@ -135,17 +135,21 @@ async def add_dice_reactions(message, dice_values):
 
 async def handle_player_action(user_id, user_message, message):
     channel = message.channel
-    response = ""
     async with channel.typing():
+        response_prefix = ""
         dice_values = game.roll_dice()
-        if dice_values:
-            if config['game']['dice_reacts']:
-                await add_dice_reactions(message, dice_values)
-            else:
-                dice_result = " ".join(config['game']['dice_strings'][value - 1] for value in dice_values)
-                response = f"You rolled: {dice_result}\n\n"
-        response += await game.respond_to_player(user_id, user_message, dice_values)
-        await discord_safe_send(response, channel)
+        # Start the AI processing the player's action, we do this so we can send dice reactions while the AI is working
+        respond_to_player_task = client.loop.create_task(game.respond_to_player(user_id, user_message, dice_values))
+        # Dice as reactions
+        if dice_values and config['game']['dice_reacts']:
+            await add_dice_reactions(message, dice_values)
+        # Dice in response text
+        elif dice_values:
+            dice_result = " ".join(config['game']['dice_strings'][value - 1] for value in dice_values)
+            response_prefix = f"You rolled: {dice_result}\n\n"
+
+        response = await respond_to_player_task
+        await discord_safe_send(response_prefix + response, channel)
 
     if game.game_context["token_usage"] > config['game']['max_log_tokens']:
         async with channel.typing():
