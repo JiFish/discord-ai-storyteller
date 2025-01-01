@@ -129,24 +129,29 @@ async def handle_public_message(user_id, user_message, message):
         else:
             await message.reply("I'm currently busy processing an action. Please try again in a moment.")
 
+async def add_dice_reactions(message, dice_values):
+    for i, value in enumerate(dice_values):
+        await message.add_reaction(config['game']['dice_reacts'][i][value - 1])
+
 async def handle_player_action(user_id, user_message, message):
     channel = message.channel
+    response = ""
     async with channel.typing():
-        chatgpt_response, dice_values = await game.respond_to_player(user_id, user_message)
+        dice_values = game.roll_dice()
         if dice_values:
             if config['game']['dice_reacts']:
-                for i, value in enumerate(dice_values):
-                    await message.add_reaction(config['game']['dice_reacts'][i][value - 1])
+                await add_dice_reactions(message, dice_values)
             else:
                 dice_result = " ".join(config['game']['dice_strings'][value - 1] for value in dice_values)
-                chatgpt_response = f"You rolled: {dice_result}\n\n{chatgpt_response}"
-        await discord_safe_send(chatgpt_response, channel)
+                response = f"You rolled: {dice_result}\n\n"
+        response += await game.respond_to_player(user_id, user_message, dice_values)
+        await discord_safe_send(response, channel)
 
     if game.game_context["token_usage"] > config['game']['max_log_tokens']:
         async with channel.typing():
-            chatgpt_response = await game.summarize_adventure()
-        if chatgpt_response != False:
-            await discord_safe_send(chatgpt_response, channel)
+            response = await game.summarize_adventure()
+        if response != False:
+            await discord_safe_send(response, channel)
         else:
             logger.fatal("Summarization due to exceeding max_log_tokens failed. This is fatal, exiting.")
             client.close()

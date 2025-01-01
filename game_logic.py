@@ -132,7 +132,7 @@ async def respond_to_admin(message):
     return assistant_reply
 
 @locked()
-async def respond_to_player(user_id, message):
+async def respond_to_player(user_id, message, dice_values = None):
     # Update the previous users list
     if config['game']['max_previous_users'] > 0:
         game_context["previous_users"].append(user_id)
@@ -140,13 +140,12 @@ async def respond_to_player(user_id, message):
             game_context["previous_users"].pop(0)
 
     character_name = game_context["characters"][user_id]["name"]
-    dice_values = roll_dice()
     if dice_values:
         message += f" [{sum(dice_values)}]"
     assistant_reply = await _respond_and_log(f"{character_name}: {message}")
     _update_status(f"{character_name} made a decision...")
     save_game_context(game_context)
-    return assistant_reply, dice_values
+    return assistant_reply
 
 async def _respond_and_log(message, role = "user"):
     game_context["log"].append({"role": role, "content": message})
