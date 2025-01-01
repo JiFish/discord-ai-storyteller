@@ -12,7 +12,7 @@ openai:
   max_summary_tokens: 500
   main_model: "gpt-4o-mini"
   summary_model: "gpt-4o"
-  main_temperature: 1.1
+  main_temperature: 1.0
   summary_temperature: 0.9
   max_attempts: 3
   retry_delay: 5
