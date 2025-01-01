@@ -49,26 +49,16 @@ async def on_message(message):
         await handle_public_message(user_id, user_message, message)
 
 async def handle_admin_command(user_message, message):
-    command_handlers = {
-        "!clearprev":    admin_commands.clear_previous_users,
-        "!instructions": admin_commands.instructions,
-        "!newgame":      admin_commands.new_game,
-        "!nudge":        admin_commands.nudge,
-        "!picture":      admin_commands.picture,
-        "!ping":         admin_commands.ping,
-        "!prompt":       admin_commands.prompt,
-        "!shutdown":     admin_commands.shutdown,
-        "!summarise":    admin_commands.summarize,
-        "!summarize":    admin_commands.summarize,
-        "!testdice":     admin_commands.test_dice,
-        "!version":      admin_commands.version
-    }
-
-    for command, handler in command_handlers.items():
+    for command, handler, reject_if_game_locked in admin_commands.command_handlers:
         if user_message.lower().startswith(command):
             user_message, _ = user_message_extract(user_message, message)
             params = user_message[len(command):].lstrip()
-            await handler(message.channel, params)
+
+            # Deal with blocking actions
+            if reject_if_game_locked and game.is_game_locked():
+                await message.reply("I'm currently busy processing an action. Please try again in a moment.")
+            else:
+                await handler(message.channel, params)
             return
 
     await message.channel.send(f"{user_message}: Command not recognized.")

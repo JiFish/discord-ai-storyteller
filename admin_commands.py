@@ -71,3 +71,19 @@ async def nudge(channel, params):
 async def clear_previous_users(channel, params):
     await game.clear_previous_users()
     await channel.send("Previous users cleared.")
+
+# (command, handler, reject_if_game_locked)
+command_handlers = [
+    ("!clearprev",                clear_previous_users, False),
+    ("!instructions",             instructions,         False),
+    ("!newgame",                  new_game,             False),
+    ("!nudge",                    nudge,                False),
+    ("!picture",                  picture,              False),
+    ("!ping",                     ping,                 False),
+    ("!prompt",                   prompt,               True ),
+    ("!shutdown",                 shutdown,             False),
+    # User actions can automatically trigger a summarization, so reject just in case
+    (("!summarise","!summarize"), summarize,            True ),
+    ("!testdice",                 test_dice,            False),
+    ("!version",                  version,              False),
+]
