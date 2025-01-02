@@ -21,6 +21,8 @@ files:
   game: "game_context.yaml"
   backup_dir: "backups"
   instructions: "instructions.md"
+  # Set to false to disable adventure logs
+  adventure_logs: "adventure_logs"
 
 game:
   max_previous_users: 1

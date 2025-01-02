@@ -1,4 +1,5 @@
 __pycache__
+adventure_logs/
 backups/
 config.yaml
 game_context.yaml

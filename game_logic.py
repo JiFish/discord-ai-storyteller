@@ -5,6 +5,7 @@ from datetime import datetime
 from config import config
 from context import save_game_context, backup_game_context, load_game_context, get_empty_context
 from openai import OpenAI
+import adventure_log
 
 openai_client = OpenAI(api_key=config['openai']['api_key'])
 
@@ -61,6 +62,7 @@ async def character_leaves(user_id_or_name, custom_message=None):
     del game_context["characters"][user_id]
     _update_status(generic_message)
     save_game_context(game_context)
+    adventure_log.add_action(story_message)
     return story_message
 
 @locked()
@@ -99,6 +101,7 @@ async def create_character(user_id, name, race, pronouns, char_class, appearance
         old_char = characters[user_id]
         log_message = f"{old_char['name']}, the {old_char['race']} {old_char['class']} ({old_char['pronouns']}), has left the party. "
         return_message = f"{old_char['name']} has left the party.\n\n"
+        adventure_log.add_action(f"{old_char['name']} has left the party.")
     else:
         log_message = return_message = ""
 
@@ -117,7 +120,7 @@ async def create_character(user_id, name, race, pronouns, char_class, appearance
     save_game_context(game_context)
 
     arrival_message = f"{name} has joined the party! {name} is a {race} {char_class} ({pronouns}). Appearance: {appearance}."
-    return f"Character created! You are {name}, a {race} {char_class} ({pronouns}). Appearance: {appearance}."
+    adventure_log.add_action(arrival_message)
     return return_message + arrival_message
 
 @locked()
@@ -162,6 +165,7 @@ async def respond_to_admin(message):
     assistant_reply = await _respond_and_log(message, role="system")
     _update_status("The story was moved forward...")
     save_game_context(game_context)
+    adventure_log.add_storyteller(assistant_reply)
     return assistant_reply
 
 @locked()
@@ -178,6 +182,8 @@ async def respond_to_player(user_id, message, dice_values = None):
     assistant_reply = await _respond_and_log(f"{character_name}: {message}")
     _update_status(f"{character_name} made a decision...")
     save_game_context(game_context)
+    adventure_log.add_quote(character_name, message)
+    adventure_log.add_storyteller(assistant_reply)
     return assistant_reply
 
 async def _respond_and_log(message, role = "user"):
@@ -225,6 +231,7 @@ async def player_say(user_id, user_message):
     game_context["log"].append({"role": "user", "content": f"{character_name} says: {user_message}"})
     _update_status(f"{character_name} has spoken...")
     save_game_context(game_context)
+    adventure_log.add_quote(f"{character_name} says", user_message)
 
 @locked()
 async def admin_nudge(user_message):
@@ -236,6 +243,7 @@ async def write_story(user_message):
     game_context["log"].append({"role": "assistant", "content": user_message})
     _update_status("The story was moved forward...")
     save_game_context(game_context)
+    adventure_log.add_storyteller(user_message)
 
 def _update_context_from_config():
     game_context["log"][0]["content"] = _build_system_prompt()
@@ -256,11 +264,13 @@ async def new_adventure(name=None):
     if name:
         game_context["game_name"] = name
     save_game_context(game_context)
+    adventure_log.set_log_name(game_context["game_name"])
 
 @locked()
 async def rename_adventure(new_name):
     game_context["game_name"] = new_name
     save_game_context(game_context)
+    adventure_log.rename_log(new_name)
 
 def players_until_turn(user_id):
     if user_id in game_context["previous_users"]:
@@ -290,4 +300,5 @@ async def generate_image_from_scene():
 ## Load the game context
 game_context = load_game_context()
 _update_context_from_config()
+adventure_log.set_log_name(game_context["game_name"])
 logger.info(f"Game context loaded: {game_context['game_name']}")

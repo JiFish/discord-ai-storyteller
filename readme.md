@@ -101,7 +101,7 @@ Admins can make narrative changes or issue commands by privately messaging the b
 
 - `!newgame [game name]`
 
-  Makes a backup, then resets the game context and starts a new adventure. **Note: This deletes all the player's characters.** `[game name]` is optional. You can always `!rename` it later.
+  Makes a backup, then resets the game context and starts a new adventure. **Note: This deletes all the player's characters.** `[game name]` is optional and determines the adventure log file name. You can always `!rename` it later.
 
 - `!nudge (prompt text)`
 
@@ -193,6 +193,7 @@ Admins can make narrative changes or issue commands by privately messaging the b
 - `files.game`: Default: `game_context.yaml`. The file where the bot's game state is saved.
 - `files.backup_dir`: Default: `backups`. Directory where game context backups are stored.
 - `files.instructions`: Default: `instructions.md`. File containing instructions sent using the `!instructions` admin command.
+- `files.adventure_logs`: The directory where adventure logs will be stored. Set to `false` to disable adventure log.
 
 ## Experimental Features
 - `experimental.image_generation`: Default: `false`. To enable, set to a dict of params to pass to openAI's [create image API](https://platform.openai.com/docs/api-reference/images/create). The scene description will be appended to `experimental.image_generation.prompt`. The extra value `experimental.image_generation.prompt_length` sets the maximum length of the combined prompt. When enabled, you can use the `!picture` admin command.
