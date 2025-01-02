@@ -30,8 +30,14 @@ async def summarize(channel, params):
         await channel.send("Summarization failed.")
 
 async def new_game(channel, params):
-    await game.new_adventure()
+    await game.new_adventure(name=params)
     await discord_safe_send("**A new adventure is beginning. Please create new characters!**", get_public_channel())
+
+async def rename(channel, params):
+    if not params:
+        await channel.send("Please provide a new name for the adventure.")
+    else:
+        await game.rename_adventure(params)
 
 async def test_dice(channel, params):
     dice_test = " ".join(config['game']['dice_strings'])
@@ -78,17 +84,42 @@ async def clear_previous_users(channel, params):
     await game.clear_previous_users()
     await channel.send("Previous users cleared.")
 
+async def stats(channel, params):
+    stats = f"""
+    **Game Name:** {game.game_context['game_name']}
+    **Last Token Usage:** {game.game_context['token_usage']}
+    **Last Status Update:** {game.game_context['last_status_update']}
+    **Log entries:** {len(game.game_context['log'])}
+    **Characters:** {len(game.game_context['characters'])}
+    **Users awaiting turn:** {len(game.game_context['previous_users'])}
+    """
+    await channel.send(stats)
+
+async def kick(channel, params):
+    if not params:
+        await channel.send("Please provide a character to kick.")
+        return
+    # Params is user_id_or_name and custom_message (optional)
+    params = params.split(",", 1)
+    user_id_or_name = params[0].rstrip()
+    custom_message = params[1].lstrip() if len(params) > 1 else None
+    response = await game.character_leaves(user_id_or_name, custom_message)
+    await get_public_channel().send(response)
+
 # (command, handler, reject_if_game_locked)
 command_handlers = [
     ("!clearprev",                clear_previous_users, False),
     ("!echo",                     echo,                 False),
     ("!instructions",             instructions,         False),
+    ("!kick",                     kick,                 False),
     ("!newgame",                  new_game,             False),
     ("!nudge",                    nudge,                False),
     ("!picture",                  picture,              False),
     ("!ping",                     ping,                 False),
     ("!prompt",                   prompt,               True ),
+    ("!rename",                   rename,               False),
     ("!shutdown",                 shutdown,             False),
+    ("!stats",                    stats,                False),
     # User actions can automatically trigger a summarization, so reject just in case
     (("!summarise","!summarize"), summarize,            True ),
     ("!testdice",                 test_dice,            False),

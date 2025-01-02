@@ -11,6 +11,7 @@ if not os.path.exists(config['files']['backup_dir']):
 
 def get_empty_context():
     return {
+        "game_name": "Game " + datetime.now().strftime("%b %d, %H:%M"),
         "characters": {},
         "log": [{"role": "system", "content": config['prompts']['base']}],
         "previous_users": [],

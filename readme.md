@@ -67,6 +67,11 @@ Gameplay can be configured, see [Gameplay Settings](#gameplay-settings) below.
   - Say something in-character. It will be recorded in the adventure log, but won't prompt a reply from the bot.
   - The bot will react with "💬" to show it heard you.
   - e.g. `!say I've got a bad feeling about this.`
+
+- `!leavetheparty`
+
+  - Your character leaves the story.
+  - You can optionally customise your departure message, e.g. `!leavetheparty Zara waves goodbye and rides back to her family.` 
   
 - **All other messages in the channel are treated as in-game actions.**
 
@@ -82,13 +87,21 @@ Admins can make narrative changes or issue commands by privately messaging the b
 
   Send (some text) to the public channel. Useful for channel announcements, repeating lost messages. Text is not part of the story, for that use `!write`.
 
+- `!kick (character name or user id) [,custom leaving message]`
+
+  Remove a character from the story. This **only** removes characters - it doesn't effect their discord user. You can give the character's name or the player's numeric discord user id. You can also optionally customise the send off message - the default is "(Character) left the party." Examples:
+
+  - `!kick 0123456789` _(By discord user id)_
+  - `!kick Jon Smith` _(By character name)_
+  - `!kick Jon Smith, Jon was crushed by falling boulders!`
+
 - `!instructions`
 
   Sends game instructions to the public channel. You might want to customise them first. See the `files.instructions` configuration setting.
 
-- `!newgame`
+- `!newgame [game name]`
 
-  Makes a backup, then resets the game context and starts a new adventure. **Note: This deletes all the player's characters.**
+  Makes a backup, then resets the game context and starts a new adventure. **Note: This deletes all the player's characters.** `[game name]` is optional. You can always `!rename` it later.
 
 - `!nudge (prompt text)`
 
@@ -106,13 +119,21 @@ Admins can make narrative changes or issue commands by privately messaging the b
 
   Send a prompt to the bot to respond to. For example, you can instruct the bot to begin the story, bring it to a close, or start a new chapter. **The bot will respond to these instructions with a visible message in the channel**, so consider carefully what you send. While the bot's response will be saved in the game log, the original prompt message will not. This method is ideal for giving quick narrative prompts but is not suitable for long-term instructions. For persistent changes, update the `prompts.base` in the configuration. Examples:
 
-  - "Please start the story in a mysterious cave."
-  - "Describe a fierce dragon that lands outside the village, demanding tribute."
-  - "Wrap up the current chapter and set the scene for the party's journey to the capital city."
+  - `!prompt Please start the story in a mysterious cave.`
+  - `!prompt Describe a fierce dragon that lands outside the village, demanding tribute.`
+  - `!prompt Wrap up the current chapter and set the scene for the party's journey to the capital city.`
+
+- `!rename (new name)`
+
+  Rename this adventure.
 
 - `!shutdown`
 
   Disconnect and close bot script.
+
+- `!stats`
+
+  Respond with some stats about the current game.
 
 - `!summarize` or `!summarise`
 

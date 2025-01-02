@@ -39,41 +39,70 @@ def _build_system_prompt():
     return config['prompts']['base'] + "\nThe players are:\n" + "\n".join(character_descriptions)
 
 @locked()
-async def create_character(user_id, name, race, pronouns, char_class, appearance):
-    # Define limits from config
-    max_name_length = config['game']['max_lengths']['name']
-    max_race_length = config['game']['max_lengths']['race']
-    max_class_length = config['game']['max_lengths']['class']
-    max_pronouns_length = config['game']['max_lengths']['pronouns']
-    max_appearance_length = config['game']['max_lengths']['appearance']
+# user_id_or_name can be a integer user_id, a string user_id, or a string character name
+async def character_leaves(user_id_or_name, custom_message=None):
+    user_id_or_name = str(user_id_or_name).lower()
+    characters = game_context['characters']
 
+    # Resolve the user ID
+    for user_id, char in characters.items():
+        if user_id_or_name in (str(user_id), char["name"].lower()):
+            break
+    else:
+        return f"⚠️ Character {user_id_or_name} not found."
+    
+    character_name = game_context["characters"][user_id]["name"]
+    generic_message = f"{character_name} has left the party."
+    story_message = custom_message if custom_message else generic_message
+    # Give ChatGPT both messages, to ensure it knows the character has left
+    context_message = (custom_message + " " if custom_message else "") + generic_message
+
+    game_context["log"].append({"role": "system", "content": context_message})
+    del game_context["characters"][user_id]
+    _update_status(generic_message)
+    save_game_context(game_context)
+    return story_message
+
+@locked()
+async def create_character(user_id, name, race, pronouns, char_class, appearance):
     # Check limits
-    if len(name) > max_name_length:
-        return f"⚠️ Character name is too long. Maximum length is {max_name_length} characters."
-    if len(race) > max_race_length:
-        return f"⚠️ Race is too long. Maximum length is {max_race_length} characters."
-    if len(char_class) > max_class_length:
-        return f"⚠️ Class is too long. Maximum length is {max_class_length} characters."
-    if len(pronouns) > max_pronouns_length:
-        return f"⚠️ Pronouns are too long. Maximum length is {max_pronouns_length} characters."
-    if len(appearance) > max_appearance_length:
-        return f"⚠️ Appearance is too long. Maximum length is {max_appearance_length} characters."
+    max_length = config['game']['max_lengths']
+    if len(name) > max_length['name']:
+        return f"⚠️ Character name is too long. Maximum length is {max_length['name']} characters."
+    if len(race) > max_length['race']:
+        return f"⚠️ Race is too long. Maximum length is {max_length['race']} characters."
+    if len(char_class) > max_length['class']:
+        return f"⚠️ Class is too long. Maximum length is {max_length['class']} characters."
+    if len(pronouns) > max_length['pronouns']:
+        return f"⚠️ Pronouns are too long. Maximum length is {max_length['pronouns']} characters."
+    if len(appearance) > max_length['appearance']:
+        return f"⚠️ Appearance is too long. Maximum length is {max_length['appearance']} characters."
 
     # Check for empty fields
     if not all([name, race, pronouns, char_class, appearance]):
         return "⚠️ All fields must be filled."
+    
+    # Check the character name is not numeric
+    if name.isnumeric():
+        return "⚠️ Character name cannot be just a number. _I am not a number!_"
 
     characters = game_context['characters']
 
-    if any(char["name"] == name for char in characters.values()):
+    # Check if the name is already in use (case insensitive)
+    if any(char["name"].lower() == name.lower() for char in characters.values()):
         return f"⚠️ {name} is already a character name!"
+    
+    # If we got this far, the character is valid
 
+    # If the user already has a character, deal with that first
     if user_id in characters:
         old_char = characters[user_id]
         log_message = f"{old_char['name']}, the {old_char['race']} {old_char['class']} ({old_char['pronouns']}), has left the party. "
+        return_message = f"{old_char['name']} has left the party.\n\n"
     else:
-        log_message = ""
+        log_message = return_message = ""
 
+    # Make changes to the game context
     characters[user_id] = {
         "name": name,
         "race": race,
@@ -82,12 +111,14 @@ async def create_character(user_id, name, race, pronouns, char_class, appearance
         "appearance": appearance
     }
     log_message += f"{name} has joined the party!"
-    game_context["log"][0]["content"] = _build_system_prompt()
     game_context["log"].append({"role": "user", "content": log_message})
-    _update_status(f"{name} has joined the party!")
+    game_context["log"][0]["content"] = _build_system_prompt()
+    _update_status(log_message)
     save_game_context(game_context)
 
+    arrival_message = f"{name} has joined the party! {name} is a {race} {char_class} ({pronouns}). Appearance: {appearance}."
     return f"Character created! You are {name}, a {race} {char_class} ({pronouns}). Appearance: {appearance}."
+    return return_message + arrival_message
 
 @locked()
 async def summarize_adventure():
@@ -219,9 +250,16 @@ async def clear_previous_users():
     save_game_context(game_context)
 
 @locked()
-async def new_adventure():
+async def new_adventure(name=None):
     backup_game_context()
     game_context = get_empty_context()
+    if name:
+        game_context["game_name"] = name
+    save_game_context(game_context)
+
+@locked()
+async def rename_adventure(new_name):
+    game_context["game_name"] = new_name
     save_game_context(game_context)
 
 def players_until_turn(user_id):
@@ -252,3 +290,4 @@ async def generate_image_from_scene():
 ## Load the game context
 game_context = load_game_context()
 _update_context_from_config()
+logger.info(f"Game context loaded: {game_context['game_name']}")

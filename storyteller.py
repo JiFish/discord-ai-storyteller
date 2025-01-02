@@ -92,7 +92,7 @@ async def handle_public_message(user_id, user_message, message):
             await message.reply("Please use the format: `!newcharacter name, race, class, pronouns, appearance`.")
         else:
             response = await game.create_character(user_id, name, race, pronouns, char_class, appearance)
-            await message.reply(response)
+            await message.channel.send(response)
     
     # Check if the player has a character
     elif user_id not in game.game_context["characters"]:
@@ -109,6 +109,11 @@ async def handle_public_message(user_id, user_message, message):
         await game.player_say(user_id, quote)
         if config['game']['say_react']:
             await message.add_reaction(config['game']['say_react'])
+    elif lower_message.startswith("!leavetheparty"):
+        # Remove the command and trim to see if there's the optional parameter
+        leave_message = user_message[15:].strip()
+        leave_message = await game.character_leaves(user_id, leave_message)
+        await message.reply(leave_message)
 
     # Check if the player is trying to use some other command
     elif lower_message.startswith("!"):
