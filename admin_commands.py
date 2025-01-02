@@ -34,12 +34,11 @@ async def new_game(channel, params):
     await discord_safe_send("**A new adventure is beginning. Please create new characters!**", get_public_channel())
 
 async def test_dice(channel, params):
-    dice_values = game.roll_dice(config['game']['dice'])
-    if dice_values:
-        dice_result = " ".join(config['game']['dice_strings'][value - 1] for value in dice_values)
-        await channel.send(dice_result)
-    else:
-        await channel.send("Dice rolling is disabled.")
+    dice_test = " ".join(config['game']['dice_strings'])
+    if config['game']['dice_reacts']:
+        for dice_reacts in config['game']['dice_reacts']:
+            dice_test += "\n" + " ".join(dice_reacts)
+    await channel.send(dice_test)
 
 async def ping(channel, params):
     logger.info('Pong! (Received !ping command.)')
