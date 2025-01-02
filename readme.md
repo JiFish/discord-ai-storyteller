@@ -1,4 +1,4 @@
-# Discord AI Storyteller v0.6
+# Discord AI Storyteller v0.7
 
 **(aka Storyteller Bot)**
 

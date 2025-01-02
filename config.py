@@ -3,7 +3,7 @@ import sys
 from logger import logger
 import sys
 
-VERSION = "v0.6 (bleeding edge)"
+VERSION = "v0.7 (bleeding edge)"
 
 # Load the config
 config_filename = sys.argv[1] if len(sys.argv) > 1 else "config.yaml"
