@@ -21,7 +21,7 @@ def get_empty_context():
 
 def load_game_context():
     if os.path.exists(config['files']['game']):
-        with open(config['files']['game'], 'r') as f:
+        with open(config['files']['game'], 'r', encoding="utf-8") as f:
             context = yaml.load(f, Loader=yaml.SafeLoader)
         # Fill in missing fields with defaults
         context = {**get_empty_context(), **context}
@@ -30,7 +30,7 @@ def load_game_context():
     return get_empty_context()
 
 def save_game_context(game_context):
-    with open(config['files']['game'], 'w') as f:
+    with open(config['files']['game'], 'w', encoding="utf-8") as f:
         yaml.dump(game_context, f)
 
 def backup_game_context():

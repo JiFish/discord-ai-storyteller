@@ -7,7 +7,7 @@ VERSION = "v0.6 (bleeding edge)"
 
 # Load the config
 config_filename = sys.argv[1] if len(sys.argv) > 1 else "config.yaml"
-with open(config_filename, "r") as file:
+with open(config_filename, "r", encoding="utf-8") as file:
     config = yaml.safe_load(file)
 
 # Extract dice string
