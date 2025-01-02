@@ -9,3 +9,4 @@ Take part in a shared storytelling experience in this channel!
 - You can't take two turns in a row.
 - Your character can speak at any time using `!say` without prompting a response from the DM. e.g. `!say I agree with Jim.`
 - If you want to send a message Storyteller doesn't hear, start your message with `(whisper)`, `#`, or `!whisper`. Anything you don't whisper WILL be sent to the DM!
+- If you wish, you can `!leavetheparty`. Sorry to see you go...
