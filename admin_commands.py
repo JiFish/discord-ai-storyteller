@@ -86,12 +86,12 @@ async def clear_previous_users(channel, params):
 
 async def stats(channel, params):
     stats = f"""
-    **Game Name:** {game.game_context['game_name']}
-    **Last Token Usage:** {game.game_context['token_usage']}
-    **Last Status Update:** {game.game_context['last_status_update']}
-    **Log entries:** {len(game.game_context['log'])}
-    **Characters:** {len(game.game_context['characters'])}
-    **Users awaiting turn:** {len(game.game_context['previous_users'])}
+**Game Name:** {game.game_context['game_name']}
+**Last Token Usage:** {game.game_context['token_usage']}
+**Last Status Update:** {game.game_context['last_status_update']}
+**Log entries:** {len(game.game_context['log'])}
+**Characters:** {len(game.game_context['characters'])}
+**Users awaiting turn:** {len(game.game_context['previous_users'])}
     """
     await channel.send(stats)
 
