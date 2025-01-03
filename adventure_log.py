@@ -33,7 +33,10 @@ def rename_log(new_log_name):
         current_log_path = new_log_path
 
 def add_storyteller(quote):
-    add_quote("Storyteller", quote)
+    if logging_enabled:
+        # Add "> " before each line in quote
+        quote = "\n".join([f"> {line}" for line in quote.split("\n")])
+        _append_to_log(quote)
 
 def add_quote(speaker, quote):
     if logging_enabled:
